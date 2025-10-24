@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Pick Your Brew — Interactive Coffee Builder</title>
+  <style>
+    :root{--bg:#fbf6f0;--card:#fff6ec;--accent:#c08b4b;--dark:#3b2f2a;--muted:#7b6a61}
+    html,body{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; background:linear-gradient(180deg,var(--bg),#f3e9de);color:var(--dark)}
+    .wrap{max-width:980px;margin:36px auto;padding:28px}
+    header{display:flex;gap:20px;align-items:flex-start}
+    .hero{flex:1}
+    .hero h1{margin:0;font-size:34px;letter-spacing:-0.02em}
+    .hero p{margin:10px 0 0;color:var(--muted);line-height:1.5}
+    .controls{width:300px;background:var(--card);border-radius:12px;padding:14px;box-shadow:0 6px 18px rgba(0,0,0,0.06)}
+    .controls label{display:block;font-weight:600;margin-top:10px;color:var(--dark)}
+    .controls input[type='text']{width:100%;padding:8px;border-radius:6px;border:1px solid #eee;margin-top:6px}
+
+    main{margin-top:22px;background:transparent}
+    .grid{display:grid;grid-template-columns:1fr 320px;gap:20px}
+    .card{background:#fff;border-radius:12px;padding:18px;box-shadow:0 6px 20px rgba(0,0,0,0.04)}
+
+    .ingredients{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+    .option{background:linear-gradient(180deg,#fff,#fff7ef);border:1px solid #f0e2d5;padding:12px;border-radius:10px;display:flex;align-items:center;gap:10px;cursor:pointer}
+    .option input{transform:scale(1.1)}
+    .row{display:flex;gap:10px;align-items:center}
+
+    .slider{width:100%}
+    .result{margin-top:16px;padding:14px;border-radius:10px;background:linear-gradient(180deg,#fff8f0,#fff6ec);border:1px solid #f0e0cf}
+    .result h3{margin:0}
+    .result p{color:var(--muted);margin:8px 0 0}
+
+    .order{display:flex;gap:10px;margin-top:12px}
+    .btn{background:var(--accent);color:#fff;padding:10px 14px;border-radius:8px;border:none;cursor:pointer;font-weight:600}
+    .btn.secondary{background:transparent;color:var(--accent);border:1px solid rgba(192,139,75,0.18)}
+
+    footer{margin-top:22px;color:var(--muted);font-size:13px}
+
+    /* Responsive */
+    @media (max-width:840px){
+      .grid{grid-template-columns:1fr}
+      .controls{width:100%}
+      header{flex-direction:column}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="hero">
+        <h1 id="pageTitle">Pick Your Brew</h1>
+        <p id="pageDesc">Choose your ingredients and we'll tell you what coffee you've built. Then jump to pricing to order your drink.</p>
+      </div>
+
+      <aside class="controls">
+        <label for="titleInput">Page title (editable)</label>
+        <input id="titleInput" type="text" placeholder="Pick Your Brew" />
+
+        <label for="descInput">Page description (editable)</label>
+        <input id="descInput" type="text" placeholder="Choose your ingredients and we'll tell you what coffee you've built." />
+
+        <label style="margin-top:14px;">Preview style</label>
+        <div class="row" style="margin-top:6px">
+          <button id="applyBtn" class="btn" style="flex:1">Apply</button>
+          <button id="resetBtn" class="btn secondary" style="flex:1">Reset</button>
+        </div>
+      </aside>
+    </header>
+
+    <main>
+      <div class="grid">
+        <section class="card">
+          <h2 style="margin:0 0 12px">Choose ingredients</h2>
+
+          <div class="ingredients">
+            <label class="option"><input type="checkbox" id="esp" /> <span>Espresso shot</span></label>
+            <label class="option"><input type="checkbox" id="filter" /> <span>Filter coffee / Drip</span></label>
+            <label class="option"><input type="checkbox" id="iced" /> <span>Iced</span></label>
+            <label class="option"><input type="checkbox" id="milk" /> <span>Steamed milk</span></label>
+            <label class="option"><input type="checkbox" id="foam" /> <span>Milk foam</span></label>
+            <label class="option"><input type="checkbox" id="sugar" /> <span>Sugar / Sweetener</span></label>
+            <label class="option"><input type="checkbox" id="chocolate" /> <span>Chocolate / Cocoa</span></label>
+            <label class="option"><input type="checkbox" id="instant" /> <span>Instant coffee</span></label>
+          </div>
+
+          <label style="margin-top:12px">Water temperature (approx)</label>
+          <input id="temp" class="slider" type="range" min="60" max="100" value="94" />
+          <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-top:6px">
+            <span>60°C</span><span>94°C (ideal)</span><span>100°C</span>
+          </div>
+
+          <label style="margin-top:12px">Brew size</label>
+          <div class="row" style="margin-top:6px">
+            <select id="size" style="padding:8px;border-radius:8px;border:1px solid #eee">
+              <option value="single">Single</option>
+              <option value="double">Double</option>
+              <option value="large">Large</option>
+            </select>
+            <select id="milkType" style="padding:8px;border-radius:8px;border:1px solid #eee">
+              <option value="regular">Whole milk</option>
+              <option value="skim">Skim</option>
+              <option value="plant">Plant milk</option>
+            </select>
+          </div>
+
+          <div class="result" id="resultCard">
+            <h3 id="resultTitle">Your brew will appear here</h3>
+            <p id="resultDesc">Select ingredients on the left and we'll match them to the closest coffee type.</p>
+            <div class="order">
+              <button id="orderBtn" class="btn" disabled>Go to pricing</button>
+              <button id="shareBtn" class="btn secondary" disabled>Share recipe</button>
+            </div>
+          </div>
+        </section>
+
+        <aside class="card">
+          <h3 style="margin-top:0">Quick matches</h3>
+          <ul style="color:var(--muted);line-height:1.6;margin-top:8px">
+            <li><strong>Cappuccino</strong>: Espresso + steamed milk + foam</li>
+            <li><strong>Latte</strong>: Espresso + steamed milk</li>
+            <li><strong>Americano</strong>: Espresso + hot water</li>
+            <li><strong>Filter / Drip</strong>: Filter coffee (no espresso)</li>
+            <li><strong>Dalgona-esque</strong>: Instant coffee + sugar + water (whipped)</li>
+            <li><strong>Iced coffee</strong>: Any base + iced option</li>
+          </ul>
+
+          <hr style="margin:12px 0;border:none;border-top:1px solid #f0e6dc" />
+          <p style="color:var(--muted);font-size:13px">When user clicks <em>Go to pricing</em> we send them to your pricing page with the recipe encoded in the URL. Replace the link in the script below with your real checkout or pricing URL.</p>
+        </aside>
+      </div>
+
+      <footer>
+        <small>Built with love for your coffee community. Edit titles on the right and press Apply to update the page header.</small>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    // Elements
+    const elems = {
+      esp: document.getElementById('esp'),
+      filter: document.getElementById('filter'),
+      iced: document.getElementById('iced'),
+      milk: document.getElementById('milk'),
+      foam: document.getElementById('foam'),
+      sugar: document.getElementById('sugar'),
+      chocolate: document.getElementById('chocolate'),
+      instant: document.getElementById('instant'),
+      temp: document.getElementById('temp'),
+      size: document.getElementById('size'),
+      milkType: document.getElementById('milkType'),
+      resultTitle: document.getElementById('resultTitle'),
+      resultDesc: document.getElementById('resultDesc'),
+      orderBtn: document.getElementById('orderBtn'),
+      shareBtn: document.getElementById('shareBtn'),
+      pageTitle: document.getElementById('pageTitle'),
+      pageDesc: document.getElementById('pageDesc'),
+      titleInput: document.getElementById('titleInput'),
+      descInput: document.getElementById('descInput'),
+      applyBtn: document.getElementById('applyBtn'),
+      resetBtn: document.getElementById('resetBtn')
+    };
+
+    // Basic matching logic
+    function matchRecipe(){
+      const s = {
+        esp: elems.esp.checked,
+        filter: elems.filter.checked,
+        iced: elems.iced.checked,
+        milk: elems.milk.checked,
+        foam: elems.foam.checked,
+        sugar: elems.sugar.checked,
+        chocolate: elems.chocolate.checked,
+        instant: elems.instant.checked,
+        temp: Number(elems.temp.value)
+      };
+
+      // Priority rules
+      if(s.instant && s.sugar){
+        return {
+          id:'dalgona',
+          name:'Whipped Instant (Dalgona-style)',
+          desc:'Instant coffee whipped with sugar and hot water. Fun and fluffy — very Instagrammable.'
+        }
+      }
+
+      if(s.esp && s.milk && s.foam){
+        return {id:'cappuccino',name:'Cappuccino',desc:'Classic cappuccino — espresso, steamed milk, and a light foam cap.'}
+      }
+
+      if(s.esp && s.milk && !s.foam){
+        return {id:'latte',name:'Latte',desc:'Creamy latte — espresso with a generous pour of steamed milk.'}
+      }
+
+      if(s.esp && !s.milk && !s.filter){
+        // Americano if hot water implied (no milk, espresso)
+        if(s.temp >= 90){
+          return {id:'americano',name:'Americano',desc:'Espresso diluted with hot water for a longer, gentler cup.'}
+        }
+        return {id:'espresso',name:'Straight Espresso',desc:'Pure espresso — concentrated and bold.'}
+      }
+
+      if(s.filter && !s.esp){
+        return {id:'filter',name:'Filter / Drip Coffee',desc:'Clean, balanced cup brewed through a filter method.'}
+      }
+
+      if(s.iced && s.esp && s.milk){
+        return {id:'icedlatte',name:'Iced Latte',desc:'Chilled espresso with milk — refreshing and smooth.'}
+      }
+
+      // fallback - guess based on combinations
+      const picked = Object.entries(s).filter(([k,v])=> v && ['esp','filter','milk','instant','iced'].includes(k)).map(([k])=>k).join(', ');
+      if(picked) return {id:'custom',name:'Custom Brew',desc:`A custom mix: ${picked}. Tweak ingredients to get a known classic.`}
+
+      return {id:'none',name:'No selection yet',desc:'Select ingredients to see your result.'}
+    }
+
+    function updateResult(){
+      const r = matchRecipe();
+      elems.resultTitle.textContent = r.name;
+      elems.resultDesc.textContent = r.desc + (r.id !== 'none' && r.id !== 'custom' ? ' Click Order to continue.' : '');
+
+      const enabled = r.id !== 'none';
+      elems.orderBtn.disabled = !enabled;
+      elems.shareBtn.disabled = !enabled;
+
+      // store current recipe detail on button dataset
+      elems.orderBtn.dataset.recipe = JSON.stringify({recipeId:r.id,name:r.name,desc:r.desc,ingredients:getSelectedIngredients()});
+    }
+
+    function getSelectedIngredients(){
+      return ['esp','filter','iced','milk','foam','sugar','chocolate','instant'].filter(k=>document.getElementById(k).checked);
+    }
+
+    // event listeners
+    ['esp','filter','iced','milk','foam','sugar','chocolate','instant','temp','size','milkType'].forEach(id=>{
+      const el = document.getElementById(id);
+      if(el) el.addEventListener('change', updateResult);
+    });
+
+    // initial
+    updateResult();
+
+    // Order button -> redirect to pricing with encoded recipe
+    elems.orderBtn.addEventListener('click',()=>{
+      const payload = JSON.parse(elems.orderBtn.dataset.recipe || '{}');
+      // build a simple query param string
+      const qs = new URLSearchParams({id:payload.recipeId||'custom',name:payload.name||'',ingredients:payload.ingredients?payload.ingredients.join('|'):'',desc:payload.desc||''}).toString();
+      // Replace the /pricing URL below with your real pricing or checkout page
+      const pricingUrl = '/pricing.html';
+      // open pricing and pass query string
+      window.location.href = pricingUrl + '?' + qs;
+    });
+
+    // share button copies recipe to clipboard
+    elems.shareBtn.addEventListener('click',async()=>{
+      const payload = JSON.parse(elems.orderBtn.dataset.recipe || '{}');
+      const text = `I built: ${payload.name} — Ingredients: ${payload.ingredients.join(', ')}`;
+      try{ await navigator.clipboard.writeText(text); alert('Recipe copied to clipboard!'); }catch(e){ alert('Could not copy.'); }
+    });
+
+    // title/description apply
+    elems.applyBtn.addEventListener('click',()=>{
+      const t = elems.titleInput.value.trim();
+      const d = elems.descInput.value.trim();
+      if(t) elems.pageTitle.textContent = t;
+      if(d) elems.pageDesc.textContent = d;
+    });
+    elems.resetBtn.addEventListener('click',()=>{
+      elems.titleInput.value = '';
+      elems.descInput.value = '';
+      elems.pageTitle.textContent = 'Pick Your Brew';
+      elems.pageDesc.textContent = "Choose your ingredients and we'll tell you what coffee you've built. Then jump to pricing to order your drink.";
+    });
+
+    // small UX: make entire option clickable
+    document.querySelectorAll('.option').forEach(opt=>{
+      opt.addEventListener('click', (e)=>{
+        if(e.target.tagName !== 'INPUT'){
+          const cb = opt.querySelector('input'); cb.checked = !cb.checked; cb.dispatchEvent(new Event('change'));
+        }
+      });
+    });
+  </script>
+</body>
+</html>
