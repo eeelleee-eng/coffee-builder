@@ -161,10 +161,10 @@
       resultTitle.textContent = r.name;
       resultDesc.textContent = r.desc;
 
-      // Enable both buttons once any valid combo is made
-      const hasAnySelection = document.querySelectorAll('.ingredients input:checked').length > 0;
-      orderBtn.disabled = !hasAnySelection;
-      shareBtn.disabled = !hasAnySelection;
+      // Enable buttons only if there's a selection
+      const hasSelection = document.querySelectorAll('.ingredients input:checked').length > 0;
+      orderBtn.disabled = !hasSelection;
+      shareBtn.disabled = !hasSelection;
 
       orderBtn.dataset.recipe = JSON.stringify(r);
       shareBtn.dataset.recipe = JSON.stringify(r);
@@ -178,7 +178,8 @@
       const r = JSON.parse(orderBtn.dataset.recipe || '{}');
       if(!r.name) return;
       const qs = new URLSearchParams(r).toString();
-      window.location.href = 'pricing.html?' + qs;
+      // Redirect to your live pricing page
+      window.location.href = 'https://eeelleee-eng.github.io/pricing-coffee/?' + qs;
     });
 
     shareBtn.addEventListener('click',()=>{
