@@ -6,28 +6,83 @@
   <title>Pick Your Brew</title>
   <meta name="description" content="We're here to help get your desired coffee delivered.">
   <style>
-    :root{--bg:#fbf6f0;--card:#fff6ec;--accent:#c08b4b;--dark:#3b2f2a;--muted:#7b6a61}
-    html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial;background:linear-gradient(180deg,var(--bg),#f3e9de);color:var(--dark)}
-    .wrap{max-width:980px;margin:36px auto;padding:28px}
-    header{margin-bottom:20px}
-    h1{margin:0;font-size:34px;letter-spacing:-0.02em}
-    p{margin:10px 0 0;color:var(--muted);line-height:1.5}
-    .grid{display:grid;grid-template-columns:1fr 320px;gap:20px}
-    .card{background:#fff;border-radius:12px;padding:18px;box-shadow:0 6px 20px rgba(0,0,0,0.04)}
-    .ingredients{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-    .option{background:linear-gradient(180deg,#fff,#fff7ef);border:1px solid #f0e2d5;padding:12px;border-radius:10px;display:flex;align-items:center;gap:10px;cursor:pointer}
-    .option input{transform:scale(1.1)}
-    .slider{width:100%}
-    .result{margin-top:16px;padding:14px;border-radius:10px;background:linear-gradient(180deg,#fff8f0,#fff6ec);border:1px solid #f0e0cf}
-    .result h3{margin:0}
-    .result p{color:var(--muted);margin:8px 0 0}
-    .order{display:flex;gap:10px;margin-top:12px}
-    .btn{background:var(--accent);color:#fff;padding:10px 14px;border-radius:8px;border:none;cursor:pointer;font-weight:600}
-    .btn.secondary{background:transparent;color:var(--accent);border:1px solid rgba(192,139,75,0.18)}
-    footer{margin-top:22px;color:var(--muted);font-size:13px;text-align:center}
+    :root {
+      --bg:#fbf6f0;
+      --card:#fff6ec;
+      --accent:#c08b4b;
+      --dark:#3b2f2a;
+      --muted:#7b6a61;
+    }
+    html,body {
+      height:100%;
+      margin:0;
+      font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial;
+      background:linear-gradient(180deg,var(--bg),#f3e9de);
+      color:var(--dark);
+    }
+    .wrap {max-width:980px;margin:36px auto;padding:28px;}
+    header {margin-bottom:20px;}
+    h1 {margin:0;font-size:34px;letter-spacing:-0.02em;}
+    p {margin:10px 0 0;color:var(--muted);line-height:1.5;}
+    .grid {display:grid;grid-template-columns:1fr 320px;gap:20px;}
+    .card {
+      background:#fff;
+      border-radius:12px;
+      padding:18px;
+      box-shadow:0 6px 20px rgba(0,0,0,0.04);
+    }
+    .ingredients {display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+    .option {
+      background:linear-gradient(180deg,#fff,#fff7ef);
+      border:1px solid #f0e2d5;
+      padding:12px;
+      border-radius:10px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      cursor:pointer;
+    }
+    .option input {transform:scale(1.1);}
+    .slider {width:100%;}
+    .result {
+      margin-top:16px;
+      padding:14px;
+      border-radius:10px;
+      background:linear-gradient(180deg,#fff8f0,#fff6ec);
+      border:1px solid #f0e0cf;
+    }
+    .result h3 {margin:0;}
+    .result p {color:var(--muted);margin:8px 0 0;}
+    .order {display:flex;gap:10px;margin-top:12px;}
+    .btn {
+      background:var(--accent);
+      color:#fff;
+      padding:10px 14px;
+      border-radius:8px;
+      border:none;
+      cursor:pointer;
+      font-weight:600;
+      transition:opacity 0.2s, background 0.2s;
+    }
+    .btn.secondary {
+      background:transparent;
+      color:var(--accent);
+      border:1px solid rgba(192,139,75,0.3);
+    }
+    .btn:disabled {
+      opacity:0.5;
+      cursor:not-allowed;
+    }
+    footer {
+      margin-top:22px;
+      color:var(--muted);
+      font-size:13px;
+      text-align:center;
+    }
     @media (max-width:840px){.grid{grid-template-columns:1fr}}
   </style>
 </head>
+
 <body>
   <div class="wrap">
     <header>
@@ -39,6 +94,7 @@
       <div class="grid">
         <section class="card">
           <h2 style="margin:0 0 12px">Choose ingredients</h2>
+
           <div class="ingredients">
             <label class="option"><input type="checkbox" id="esp"/>Espresso shot</label>
             <label class="option"><input type="checkbox" id="filter"/>Filter coffee / Drip</label>
@@ -80,43 +136,59 @@
   </div>
 
   <script>
-    const e = id => document.getElementById(id);
-    const orderBtn = e('orderBtn');
-    const shareBtn = e('shareBtn');
-    const resultTitle = e('resultTitle');
-    const resultDesc = e('resultDesc');
+    const $ = id => document.getElementById(id);
+    const orderBtn = $('orderBtn');
+    const shareBtn = $('shareBtn');
+    const resultTitle = $('resultTitle');
+    const resultDesc = $('resultDesc');
 
     function matchRecipe() {
       const s = ['esp','filter','iced','milk','foam','sugar','chocolate','instant']
-        .reduce((a,k)=>({...a,[k]:e(k).checked}),{});
+        .reduce((a,k)=>({...a,[k]:$(k).checked}),{});
 
-      if(s.instant && s.sugar) return {id:'dalgona',name:'Dalgona',desc:'Whipped instant coffee with sugar and hot water.'};
-      if(s.esp && s.milk && s.foam) return {id:'cappuccino',name:'Cappuccino',desc:'Espresso with steamed milk and a light foam cap.'};
-      if(s.esp && s.milk && !s.foam) return {id:'latte',name:'Latte',desc:'Espresso with steamed milk — smooth and creamy.'};
-      if(s.esp && !s.milk && !s.filter) return {id:'americano',name:'Americano',desc:'Espresso diluted with hot water.'};
-      if(s.filter && !s.esp) return {id:'filter',name:'Filter Coffee',desc:'Brewed drip coffee.'};
-      if(s.iced && s.esp && s.milk) return {id:'icedlatte',name:'Iced Latte',desc:'Cold espresso with milk — refreshing.'};
+      if (s.instant && s.sugar) return {id:'dalgona',name:'Dalgona',desc:'Whipped instant coffee with sugar and hot water.'};
+      if (s.esp && s.milk && s.foam) return {id:'cappuccino',name:'Cappuccino',desc:'Espresso with steamed milk and a light foam cap.'};
+      if (s.esp && s.milk && !s.foam) return {id:'latte',name:'Latte',desc:'Espresso with steamed milk — smooth and creamy.'};
+      if (s.esp && !s.milk && !s.filter) return {id:'americano',name:'Americano',desc:'Espresso diluted with hot water.'};
+      if (s.filter && !s.esp) return {id:'filter',name:'Filter Coffee',desc:'Brewed drip coffee.'};
+      if (s.iced && s.esp && s.milk) return {id:'icedlatte',name:'Iced Latte',desc:'Cold espresso with milk — refreshing.'};
 
-      return {id:'custom',name:'Custom Brew',desc:'Unique combination. Let’s see what it costs!'}
+      return {id:'custom',name:'Custom Brew',desc:'Unique combination. Let’s see what it costs!'};
     }
 
     function updateResult() {
       const r = matchRecipe();
       resultTitle.textContent = r.name;
       resultDesc.textContent = r.desc;
-      orderBtn.disabled = r.id === 'custom';
-      shareBtn.disabled = false;
+
+      // Enable both buttons once any valid combo is made
+      const hasAnySelection = document.querySelectorAll('.ingredients input:checked').length > 0;
+      orderBtn.disabled = !hasAnySelection;
+      shareBtn.disabled = !hasAnySelection;
+
       orderBtn.dataset.recipe = JSON.stringify(r);
+      shareBtn.dataset.recipe = JSON.stringify(r);
     }
 
     ['esp','filter','iced','milk','foam','sugar','chocolate','instant'].forEach(id=>{
-      e(id).addEventListener('change',updateResult);
+      $(id).addEventListener('change',updateResult);
     });
 
     orderBtn.addEventListener('click',()=>{
-      const r = JSON.parse(orderBtn.dataset.recipe||'{}');
+      const r = JSON.parse(orderBtn.dataset.recipe || '{}');
+      if(!r.name) return;
       const qs = new URLSearchParams(r).toString();
       window.location.href = 'pricing.html?' + qs;
+    });
+
+    shareBtn.addEventListener('click',()=>{
+      const r = JSON.parse(shareBtn.dataset.recipe || '{}');
+      if(!r.name) return;
+      const text = `☕ ${r.name}: ${r.desc}`;
+      navigator.clipboard.writeText(text).then(()=>{
+        shareBtn.textContent = 'Copied!';
+        setTimeout(()=>shareBtn.textContent = 'Share recipe', 1500);
+      });
     });
   </script>
 </body>
